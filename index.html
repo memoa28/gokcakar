@@ -40,6 +40,63 @@
 <link rel="stylesheet" href="https://cdn-cms-s-8-4.f-static.net/manager/ai_app_builder/v3/assets/css/components.css?t=1790613163&w=12415260&edit=1">
 <link rel="stylesheet" href="https://cdn-cms-s-8-4.f-static.net/manager/ai_app_builder/v3/assets/css/layout.css?t=1790613163&w=12415260&edit=1"><!-- /twig-include:global/head.html -->
     </head>
+ <!-- MEVCUT KODU BOZMAYAN EK BİLDİRİM PROTOKOLÜ -->
+<style>
+    .cyber-toast {
+        position: fixed; top: 20px; right: 20px; z-index: 9999;
+        background: #000; border: 2px solid #33ff33; color: #33ff33;
+        padding: 15px 20px; font-family: 'Courier New', monospace;
+        box-shadow: 0 0 15px rgba(51,255,51,0.5);
+        display: flex; flex-direction: column; gap: 8px; max-w: 320px;
+    }
+    .cyber-toast-header {
+        display: flex; justify-content: space-between; align-items: center; 
+        border-b: 1px solid #33ff33; padding-bottom: 5px; font-weight: bold; font-size: 11px;
+    }
+    .cyber-toast-body { font-size: 11px; line-height: 1.4; margin-top: 5px; }
+    .cyber-close-x {
+        background: none; border: 1px solid #33ff33; color: #33ff33;
+        cursor: pointer; font-weight: bold; padding: 1px 5px; font-size: 10px;
+    }
+    .cyber-close-x:hover { background: #33ff33; color: #000; }
+</style>
+
+<script>
+(function() {
+    // Sayfa tamamen yüklendiğinde çalıştır
+    window.addEventListener("load", function() {
+        const updateBtn = document.getElementById("systemUpdateBtn");
+        
+        if (updateBtn) {
+            updateBtn.addEventListener("click", function() {
+                // Eğer ekranda zaten bir bildirim varsa ikincisi açılmasın diye temizle
+                const oldToast = document.querySelector(".cyber-toast");
+                if (oldToast) oldToast.remove();
+
+                // Yeni Sabit Bildirim Kutusunu Oluştur
+                const toast = document.createElement("div");
+                toast.className = "cyber-toast";
+                toast.innerHTML = `
+                    <div class="cyber-toast-header">
+                        <span>[SİSTEM BİLDİRİMİ v4.1]</span>
+                        <button type="button" class="cyber-close-x">X KAPAT</button>
+                    </div>
+                    <div class="cyber-toast-body">
+                        > GÖKÇAKAR çekirdek yazılımı başarıyla doğrulandı.<br>
+                        > Modül güncellemeleri ve siber güvenlik yamaları devreye alındı.
+                    </div>
+                `;
+                document.body.appendChild(toast);
+
+                // Kapatma butonuna basınca bildirimi yok et
+                toast.querySelector(".cyber-close-x").addEventListener("click", function() {
+                    toast.remove();
+                });
+            });
+        }
+    });
+})();
+</script>
 <body class="min-h-screen bg-[var(--background-color)] text-[var(--text-color)]" style="font-family: var(--font-body);">
     <!-- twig-include:global/header.html --><!-- Explain: Fixed minimal navigation with system info. -->
 <header class="border-b border-[var(--primary-color)] bg-[var(--background-color)] p-4 text-xs font-bold uppercase tracking-widest text-[var(--primary-color)]">
