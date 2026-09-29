@@ -150,3 +150,66 @@ Sensor Fusion (Çift Kilit) Karar Mekanizması sayesinde, HC-SR04 ultrasonik mes
     <script src="https://cdn-cms-s-8-4.f-static.net/manager/ai_app_builder/v3/assets/js/app.js?t=1790613163&w=12415260&edit=1"></script>
 <script>var packageNUM=1;</script><script src="https://cdn-cms-s-8-4.f-static.net/versions/2/system_mini/js/minimize_appBuilder_scripts_v3.js?v=vc1790592900" crossorigin="anonymous"></script></body>
 </html>
+<!-- GÖKÇAKAR LOCAL DESTEK PROTOKOLÜ YAZILIMSAL YATAKLAMA -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const supportForm = document.getElementById("supportForm");
+    const supportFormStatus = document.getElementById("supportFormStatus");
+    const supportersList = document.getElementById("supportersList");
+    const supportCountSpan = document.getElementById("supportCount");
+    const alreadySupportedMsg = document.getElementById("alreadySupportedMsg");
+
+    // 1. Sayfa yüklenince tarayıcı hafızasındaki eski imzaları çek ve listeye ekle
+    let localSupporters = JSON.parse(localStorage.getItem("gokcakar_supporters")) || [];
+    
+    // Varsayılan sabit destekçiler (Kayıtlı İmzalar)
+    const defaultSupporters = ["Ahmet Torun", "Deniz Güzel", "Mehmet Efe Beyaz", "Mehmet Akten"];
+    
+    // Toplam sayıyı güncelle (Varsayılanlar + Yeni Eklenenler)
+    supportCountSpan.textContent = defaultSupporters.length + localSupporters.length;
+
+    // Hafızadaki yeni destekçileri listeye bas
+    localSupporters.forEach(name => {
+        const div = document.createElement("div");
+        div.innerHTML = `> ${name} - <span style="color: var(--primary-color);">ONAYLANDI (YEREL SÜRÜCÜ)</span>`;
+        supportersList.appendChild(div);
+    });
+
+    // Daha önce bu tarayıcıdan imza atılmış mı kontrol et
+    if (localStorage.getItem("gokcakar_has_signed") === "true") {
+        supportForm.style.display = "none";
+        alreadySupportedMsg.classList.remove("hidden");
+        alreadySupportedMsg.style.display = "block";
+    }
+
+    // 2. Form Gönderildiğinde Site123 Bağlantısını Devre Dışı Bırak ve Yerel Hafızaya Yaz
+    if (supportForm) {
+        supportForm.addEventListener("submit", function(e) {
+            e.preventDefault(); // Site123'ün hatalı sunucusuna gitmesini engeller.
+            
+            const nameInput = supportForm.querySelector('input[name="fullName"]');
+            const fullName = nameInput.value.trim();
+
+            if (fullName === "") return;
+
+            // Listeye yeni ismi ekle
+            const newDiv = document.createElement("div");
+            newDiv.innerHTML = `> ${fullName} - <span style="color: var(--primary-color);">ONAYLANDI (YENİ SİSTEM)</span>`;
+            supportersList.appendChild(newDiv);
+
+            // Hafızaya kaydet
+            localSupporters.push(fullName);
+            localStorage.setItem("gokcakar_supporters", JSON.stringify(localSupporters));
+            localStorage.setItem("gokcakar_has_signed", "true");
+
+            // Sayaç güncelle
+            supportCountSpan.textContent = defaultSupporters.length + localSupporters.length;
+
+            // Formu gizle, teşekkür mesajını yak
+            supportForm.style.display = "none";
+            alreadySupportedMsg.classList.remove("hidden");
+            alreadySupportedMsg.style.display = "block";
+        });
+    }
+});
+</script>
