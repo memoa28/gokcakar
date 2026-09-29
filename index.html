@@ -10,19 +10,19 @@
 <meta name="keywords" content="ciws, gökçakar">
 <link rel="canonical" href="https://app.site123.com/.preview-c9ca8d05701fa5b1f78390d86323912d/"/>
 <!-- Facebook Meta Info -->
-<meta property="og:url" content="https://app.site123.com/.preview-c9ca8d05701fa5b1f78390d86323912d/">
+<meta property="og:url" content="">
 <meta property="og:image" content="">
 <meta property="og:description" content="AUTONOMOUS CLOSE-IN WEAPON SYSTEM // RECON PROTOCOL v4.0">
 <meta property="og:title" content="PROJECT GÖKÇAKAR-CIWS">
 <meta property="og:site_name" content="PROJECT GÖKÇAKAR-CIWS">
-<meta property="og:see_also" content="https://app.site123.com">
+<meta property="og:see_also" content="">
 <!-- Google+ Meta Info -->
 <meta itemprop="name" content="PROJECT GÖKÇAKAR-CIWS">
 <meta itemprop="description" content="AUTONOMOUS CLOSE-IN WEAPON SYSTEM // RECON PROTOCOL v4.0">
 <meta itemprop="image" content="">
 <!-- Twitter Meta Info -->
 <meta name="twitter:card" content="summary">
-<meta name="twitter:url" content="https://app.site123.com/.preview-c9ca8d05701fa5b1f78390d86323912d/">
+<meta name="twitter:url" content="">
 <meta name="twitter:title" content="PROJECT GÖKÇAKAR-CIWS">
 <meta name="twitter:description" content="AUTONOMOUS CLOSE-IN WEAPON SYSTEM // RECON PROTOCOL v4.0">
 <meta name="twitter:image" content="">
@@ -59,7 +59,7 @@
     <div class="matrix-text">
 [SYS_STATUS]: ACTIVE // ALL SYSTEMS OPERATIONAL
 [DEVELOPER]: MEHMET EMRE AKTEN
-[MISSION_SECTOR]: BULANCAK FEN R&D LAB
+[MISSION_SECTOR]: BULANCAK FEN HİGH SCHOOL R&D LAB
 -------------------------------------------------------------
 Sistem tamamen asenkron durum makinesi (State Machine) mimarisiyle, millis() saat döngüsü tabanlı çalışmaktadır.
 
@@ -100,12 +100,76 @@ Sensor Fusion (Çift Kilit) Karar Mekanizması sayesinde, HC-SR04 ultrasonik mes
                     <span>TOPLAM: <span id="supportCount">4</span></span>
                 </div>
 
-                <form id="supportForm" class="flex flex-col gap-3">
-                    <label class="text-xs text-[var(--text-muted)] uppercase tracking-wider">> KİMLİK DOĞRULAMA (AD SOYAD):</label>
-                    <input type="text" name="fullName" required class="bg-transparent border border-[var(--primary-color)] text-[var(--primary-color)] p-2 font-['Courier_New'] focus:outline-none focus:shadow-[0_0_10px_rgba(51,255,51,0.5)] placeholder:text-[var(--text-muted)] placeholder:opacity-50" placeholder="Örn: Ahmet Yılmaz" autocomplete="off">
-                    <button type="submit" class="hud-button w-full py-2 mt-2 font-bold tracking-widest text-sm uppercase">İMZA</button>
-                    <p id="supportFormStatus" class="text-xs mt-1 hidden"></p>
-                </form>
+                <form id="supportForm" class="flex flex-col gap-3" onsubmit="return false;">
+    <label class="text-xs text-[var(--text-muted)] uppercase tracking-wider">> KİMLİK DOĞRULAMA (AD SOYAD):</label>
+    <input type="text" id="fullNameInput" name="fullName" required class="bg-transparent border border-[var(--primary-color)] text-[var(--primary-color)] p-2 font-['Courier_New'] focus:outline-none focus:shadow-[0_0_10px_rgba(51,255,51,0.5)] placeholder:text-[var(--text-muted)] placeholder:opacity-50" placeholder="Örn: Ahmet Yılmaz" autocomplete="off">
+    <button type="button" id="gokcakarSubmitBtn" class="hud-button w-full py-2 mt-2 font-bold tracking-widest text-sm uppercase">İMZA</button>
+    <p id="supportFormStatus" class="text-xs mt-1 hidden"></p>
+</form>
+
+<div id="alreadySupportedMsg" class="hidden text-center text-sm text-[var(--primary-color)] animate-pulse py-4 font-bold tracking-wider">
+    > CİHAZ İMZASI ZATEN KAYITLI. <br>DESTEĞİNİZ İÇİN TEŞEKKÜRLER.
+</div>
+
+<!-- GÖKÇAKAR TAMAMEN BAĞIMSIZ YEREL PROTOKOLÜ -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const btn = document.getElementById("gokcakarSubmitBtn");
+    const form = document.getElementById("supportForm");
+    const nameInput = document.getElementById("fullNameInput");
+    const supportersList = document.getElementById("supportersList");
+    const supportCountSpan = document.getElementById("supportCount");
+    const alreadySupportedMsg = document.getElementById("alreadySupportedMsg");
+
+    const defaultCount = 4;
+    let localSupporters = JSON.parse(localStorage.getItem("gokcakar_supporters")) || [];
+    
+    // Sayıcıyı güncelle
+    supportCountSpan.textContent = defaultCount + localSupporters.length;
+
+    // Hafızadakileri listeye ekle
+    localSupporters.forEach(name => {
+        const div = document.createElement("div");
+        div.innerHTML = `> ${name} - <span style="color: #33ff33;">ONAYLANDI</span>`;
+        supportersList.appendChild(div);
+    });
+
+    // Önceden imzalanmışsa formu gizle
+    if (localStorage.getItem("gokcakar_has_signed") === "true") {
+        if(form) form.style.display = "none";
+        alreadySupportedMsg.classList.remove("hidden");
+    }
+
+    // Butona tıklanınca yapılacaklar (Site123 tamamen bypass edildi)
+    if (btn) {
+        btn.addEventListener("click", function() {
+            const fullName = nameInput.value.trim();
+            if (fullName === "") {
+                alert("Lütfen adınızı ve soyadınızı girin.");
+                return;
+            }
+
+            // Listeye ekle
+            const newDiv = document.createElement("div");
+            newDiv.innerHTML = `> ${fullName} - <span style="color: #33ff33;">ONAYLANDI</span>`;
+            supportersList.appendChild(newDiv);
+
+            // Hafızaya yaz
+            localSupporters.push(fullName);
+            localStorage.setItem("gokcakar_supporters", JSON.stringify(localSupporters));
+            localStorage.setItem("gokcakar_has_signed", "true");
+
+            // Sayacı artır
+            supportCountSpan.textContent = defaultCount + localSupporters.length;
+
+            // Formu kapa mesajı aç
+            if(form) form.style.display = "none";
+            alreadySupportedMsg.classList.remove("hidden");
+        });
+    }
+});
+</script>
+
 
                 <div id="alreadySupportedMsg" class="hidden text-center text-sm text-[var(--primary-color)] animate-pulse py-4 font-bold tracking-wider">
                     > CİHAZ İMZASI ZATEN KAYITLI. <br>DESTEĞİNİZ İÇİN TEŞEKKÜRLER.
@@ -117,7 +181,7 @@ Sensor Fusion (Çift Kilit) Karar Mekanizması sayesinde, HC-SR04 ultrasonik mes
                         <div data-ai-namespace="supporters" data-ai-record-id="3446785">> Ahmet Torun - <span class="text-[var(--text-muted)]">ONAYLANDI</span></div>
                         <div data-ai-namespace="supporters" data-ai-record-id="3445986">> Deniz Güzel - <span class="text-[var(--text-muted)]">ONAYLANDI</span></div>
                         <div data-ai-namespace="supporters" data-ai-record-id="3445798">> Mehmet Efe Beyaz - <span class="text-[var(--text-muted)]">ONAYLANDI</span></div>
-                        <div data-ai-namespace="supporters" data-ai-record-id="3443758">> Mehmet Akten - <span class="text-[var(--text-muted)]">ONAYLANDI</span></div>
+                        <div data-ai-namespace="developers" data-ai-record-id="3443758">> Mehmet Akten - <span class="text-[var(--text-muted)]">DEVELOPER</span></div>
                                             </div>
                 </div>
             </div>
