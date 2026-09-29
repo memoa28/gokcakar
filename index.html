@@ -114,6 +114,67 @@ Sensor Fusion (Çift Kilit) Karar Mekanizması sayesinde, HC-SR04 ultrasonik mes
 <!-- GÖKÇAKAR TAMAMEN BAĞIMSIZ YEREL PROTOKOLÜ -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    const updateBtn = document.getElementById("systemUpdateBtn");
+    const updateStatus = document.getElementById("systemUpdateStatus");
+
+    // 1. Sağ üstte açılacak kapatma tuşlu askeri bildirimin görsel tasarımı
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .cyber-notification {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            background: #000; border: 2px solid #33ff33; color: #33ff33;
+            padding: 15px 20px; font-family: 'Courier New', monospace;
+            box-shadow: 0 0 15px rgba(51,255,51,0.4);
+            display: flex; align-items: center; gap: 15px;
+        }
+        .cyber-close-btn {
+            background: none; border: 1px solid #33ff33; color: #33ff33;
+            cursor: pointer; font-weight: bold; padding: 2px 6px; font-size: 10px;
+            transition: all 0.2s;
+        }
+        .cyber-close-btn:hover { background: #33ff33; color: #000; }
+    `;
+    document.head.appendChild(style);
+
+    // 2. Butona tıklandığında Site123'ün gizli yazısını yakala ve anında değiştir
+    if (updateBtn) {
+        updateBtn.addEventListener("click", function() {
+            
+            // Sağ üstte Kapatma (X) Tuşlu Bildirim Oluştur
+            const notification = document.createElement("div");
+            notification.className = "cyber-notification";
+            notification.innerHTML = `
+                <span><i class="fa-solid fa-triangle-exclamation animate-pulse"></i> [UYARI]: GÖKÇAKAR KERNEL v4.1 DOĞRULANDI!</span>
+                <button type="button" class="cyber-close-btn">X KAPAT</button>
+            `;
+            document.body.appendChild(notification);
+
+            // Kapatma butonuna basınca bildirimi yok et
+            notification.querySelector(".cyber-close-btn").addEventListener("click", function() {
+                notification.remove();
+            });
+
+            // Site123 arkadan yazıyı yükledikten 50 milisaniye sonra o yazıyı yakala ve ez
+            setTimeout(() => {
+                if (updateStatus) {
+                    updateStatus.style.textAlign = "left";
+                    updateStatus.style.whiteSpace = "pre-wrap";
+                    updateStatus.style.color = "#33ff33";
+                    updateStatus.innerHTML = `
+<br>[GÜNCELLEME NOTU // SÜRÜM v4.1]: RECON PROTOCOL PATCH PRO
+-------------------------------------------------------------
+> LOG_DATE: 29.09.2026 // STATUS: PATCH_APPLIED
+> KERNEL: GitHub Pages bağımsız statik sunucu entegrasyonu tamamlandı.
+> REPAIR: Site123 harici API ve veri tabanı çakışmaları tamamen bypass edildi.
+> CORE: [DESTEK PROTOKOLÜ] imza bağlantı sorunu yerel sürücü yataklaması (localStorage) ile çözüldü.
+> STATUS: Cihaz imzaları ve otonom ağ kayıtları %100 kararlı çalışmaktadır.
+                    `;
+                }
+            }, 50);
+        });
+    }
+});
+
     const btn = document.getElementById("gokcakarSubmitBtn");
     const form = document.getElementById("supportForm");
     const nameInput = document.getElementById("fullNameInput");
