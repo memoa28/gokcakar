@@ -117,50 +117,66 @@ document.addEventListener("DOMContentLoaded", function() {
     const updateBtn = document.getElementById("systemUpdateBtn");
     const updateStatus = document.getElementById("systemUpdateStatus");
 
-    // 1. Sağ üstte açılacak kapatma tuşlu askeri bildirimin görsel tasarımı
+    // 1. Ekranın sağ üstünde kalacak askeri siber bildirimin görsel tasarımı
     const style = document.createElement('style');
     style.innerHTML = `
-        .cyber-notification {
+        .cyber-toast {
             position: fixed; top: 20px; right: 20px; z-index: 9999;
             background: #000; border: 2px solid #33ff33; color: #33ff33;
             padding: 15px 20px; font-family: 'Courier New', monospace;
-            box-shadow: 0 0 15px rgba(51,255,51,0.4);
-            display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 0 15px rgba(51,255,51,0.5);
+            display: flex; flex-col; gap: 8px; max-w: 320px;
         }
-        .cyber-close-btn {
+        .cyber-toast-header {
+            display: flex; justify-content: space-between; align-items: center; 
+            border-b: 1px solid #33ff33; padding-bottom: 5px; font-weight: bold; font-size: 11px;
+        }
+        .cyber-toast-body { font-size: 11px; line-height: 1.4; margin-top: 5px; }
+        .cyber-close-x {
             background: none; border: 1px solid #33ff33; color: #33ff33;
-            cursor: pointer; font-weight: bold; padding: 2px 6px; font-size: 10px;
-            transition: all 0.2s;
+            cursor: pointer; font-weight: bold; padding: 1px 5px; font-size: 10px;
         }
-        .cyber-close-btn:hover { background: #33ff33; color: #000; }
+        .cyber-close-x:hover { background: #33ff33; color: #000; }
     `;
     document.head.appendChild(style);
 
-    // 2. Butona tıklandığında Site123'ün gizli yazısını yakala ve anında değiştir
+    // 2. Butona basıldığında tetiklenecek işlemler
     if (updateBtn) {
         updateBtn.addEventListener("click", function() {
             
-            // Sağ üstte Kapatma (X) Tuşlu Bildirim Oluştur
-            const notification = document.createElement("div");
-            notification.className = "cyber-notification";
-            notification.innerHTML = `
-                <span><i class="fa-solid fa-triangle-exclamation animate-pulse"></i> [UYARI]: GÖKÇAKAR KERNEL v4.1 DOĞRULANDI!</span>
-                <button type="button" class="cyber-close-btn">X KAPAT</button>
-            `;
-            document.body.appendChild(notification);
+            // Eski bir bildirim varsa ekranda çoğalmasın diye önce onu temizle
+            const oldToast = document.querySelector(".cyber-toast");
+            if (oldToast) oldToast.remove();
 
-            // Kapatma butonuna basınca bildirimi yok et
-            notification.querySelector(".cyber-close-btn").addEventListener("click", function() {
-                notification.remove();
+            // Sağ üstte KAPANMAYAN, Bilgilendirme Metni içeren bildirim kutusu oluştur
+            const toast = document.createElement("div");
+            toast.className = "cyber-toast";
+            toast.style.flexDirection = "column";
+            toast.innerHTML = `
+                <div class="cyber-toast-header">
+                    <span>[SİSTEM BİLDİRİMİ v4.1]</span>
+                    <button type="button" class="cyber-close-x">X KAPAT</button>
+                </div>
+                <div class="cyber-toast-body">
+                    > GÖKÇAKAR çekirdek yazılımı başarıyla güncellendi.<br>
+                    > Sunucu veri hatası giderildi ve yerel veri koruma protokolü devreye alındı.
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            // Kapatma butonuna basılana kadar EKRANDA KALIR (Kendiliğinden kaybolmaz)
+            toast.querySelector(".cyber-close-x").addEventListener("click", function() {
+                toast.remove();
             });
 
-            // Site123 arkadan yazıyı yükledikten 50 milisaniye sonra o yazıyı yakala ve ez
-            setTimeout(() => {
-                if (updateStatus) {
-                    updateStatus.style.textAlign = "left";
-                    updateStatus.style.whiteSpace = "pre-wrap";
-                    updateStatus.style.color = "#33ff33";
-                    updateStatus.innerHTML = `
+            // Butonun altındaki o senin kodda bulamadığın yeri havalı güncelleme metniyle doldur
+            if (updateStatus) {
+                updateStatus.classList.remove("hidden");
+                updateStatus.style.display = "block";
+                updateStatus.style.textAlign = "left";
+                updateStatus.style.whiteSpace = "pre-wrap";
+                updateStatus.style.color = "#33ff33";
+                updateStatus.innerHTML = `
 <br>[GÜNCELLEME NOTU // SÜRÜM v4.1]: RECON PROTOCOL PATCH PRO
 -------------------------------------------------------------
 > LOG_DATE: 29.09.2026 // STATUS: PATCH_APPLIED
@@ -168,14 +184,13 @@ document.addEventListener("DOMContentLoaded", function() {
 > REPAIR: Site123 harici API ve veri tabanı çakışmaları tamamen bypass edildi.
 > CORE: [DESTEK PROTOKOLÜ] imza bağlantı sorunu yerel sürücü yataklaması (localStorage) ile çözüldü.
 > STATUS: Cihaz imzaları ve otonom ağ kayıtları %100 kararlı çalışmaktadır.
-                    `;
-                }
-            }, 50);
+                `;
+            }
         });
     }
-});
 
-    const btn = document.getElementById("gokcakarSubmitBtn");
+    // --- İmza atma formu ve LocalStorage kodların (Daha önce yaptığımız temiz çalışan hali) ---
+    const btnSign = document.getElementById("gokcakarSubmitBtn");
     const form = document.getElementById("supportForm");
     const nameInput = document.getElementById("fullNameInput");
     const supportersList = document.getElementById("supportersList");
@@ -184,156 +199,35 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const defaultCount = 4;
     let localSupporters = JSON.parse(localStorage.getItem("gokcakar_supporters")) || [];
-    
-    // Sayıcıyı güncelle
-    supportCountSpan.textContent = defaultCount + localSupporters.length;
+    if(supportCountSpan) supportCountSpan.textContent = defaultCount + localSupporters.length;
 
-    // Hafızadakileri listeye ekle
     localSupporters.forEach(name => {
         const div = document.createElement("div");
         div.innerHTML = `> ${name} - <span style="color: #33ff33;">ONAYLANDI</span>`;
-        supportersList.appendChild(div);
+        if(supportersList) supportersList.appendChild(div);
     });
 
-    // Önceden imzalanmışsa formu gizle
-    if (localStorage.getItem("gokcakar_has_signed") === "true") {
-        if(form) form.style.display = "none";
-        alreadySupportedMsg.classList.remove("hidden");
+    if (localStorage.getItem("gokcakar_has_signed") === "true" && form) {
+        form.style.display = "none";
+        if(alreadySupportedMsg) alreadySupportedMsg.classList.remove("hidden");
     }
 
-    // Butona tıklanınca yapılacaklar (Site123 tamamen bypass edildi)
-    if (btn) {
-        btn.addEventListener("click", function() {
+    if (btnSign) {
+        btnSign.addEventListener("click", function() {
             const fullName = nameInput.value.trim();
-            if (fullName === "") {
-                alert("Lütfen adınızı ve soyadınızı girin.");
-                return;
-            }
-
-            // Listeye ekle
-            const newDiv = document.createElement("div");
-            newDiv.innerHTML = `> ${fullName} - <span style="color: #33ff33;">ONAYLANDI</span>`;
-            supportersList.appendChild(newDiv);
-
-            // Hafızaya yaz
-            localSupporters.push(fullName);
-            localStorage.setItem("gokcakar_supporters", JSON.stringify(localSupporters));
-            localStorage.setItem("gokcakar_has_signed", "true");
-
-            // Sayacı artır
-            supportCountSpan.textContent = defaultCount + localSupporters.length;
-
-            // Formu kapa mesajı aç
-            if(form) form.style.display = "none";
-            alreadySupportedMsg.classList.remove("hidden");
-        });
-    }
-});
-</script>
-
-
-                <div id="alreadySupportedMsg" class="hidden text-center text-sm text-[var(--primary-color)] animate-pulse py-4 font-bold tracking-wider">
-                    > CİHAZ İMZASI ZATEN KAYITLI. <br>DESTEĞİNİZ İÇİN TEŞEKKÜRLER.
-                </div>
-
-                <div class="mt-6">
-                    <div class="text-xs text-[var(--text-muted)] mb-2 uppercase tracking-wider">> ONAYLANAN DESTEKÇİLER:</div>
-                    <div id="supportersList" class="hud-scroll max-h-40 overflow-y-auto border border-[var(--primary-color)] p-2 text-xs flex flex-col gap-1">
-                        <div data-ai-namespace="supporters" data-ai-record-id="3446785">> Ahmet Torun - <span class="text-[var(--text-muted)]">ONAYLANDI</span></div>
-                        <div data-ai-namespace="supporters" data-ai-record-id="3445986">> Deniz Güzel - <span class="text-[var(--text-muted)]">ONAYLANDI</span></div>
-                        <div data-ai-namespace="supporters" data-ai-record-id="3445798">> Mehmet Efe Beyaz - <span class="text-[var(--text-muted)]">ONAYLANDI</span></div>
-                        <div data-ai-namespace="developers" data-ai-record-id="3443758">> Mehmet Akten - <span class="text-[var(--text-muted)]">DEVELOPER</span></div>
-                                            </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-8 border-t border-[var(--primary-color)] pt-4 text-xs text-[var(--text-muted)]">
-        > WAITING FOR COMMAND INPUT...
-        <span class="animate-pulse text-[var(--primary-color)]">_</span>
-    </div>
-</section><!-- /twig-include:sections/index.hero.html -->
-    </main>
-    <!-- twig-include:global/footer.html --><!-- Explain: Footer displaying copyright, system status, and audio controls. -->
-<footer class="mt-12 border-t border-[var(--primary-color)] p-4 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">
-    <div class="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 sm:flex-row">
-        <span>[ENCRYPTED CONNECTION ESTABLISHED]</span>
-        <span>&copy; 2026 MEHMET EMRE AKTEN</span>
-    </div>
-</footer>
-
-<div class="fixed bottom-4 right-4 z-50 flex items-center gap-3 bg-[var(--surface-color)] border border-[var(--primary-color)] p-2 shadow-[0_0_10px_rgba(51,255,51,0.2)]">
-    <button id="audioToggleBtn" class="text-[var(--primary-color)] hover:text-[var(--primary-hover)] transition-colors w-6 flex justify-center" aria-label="Sesi Aç/Kapat">
-        <i class="fa-solid fa-volume-low" id="audioIcon"></i>
-    </button>
-    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.2" class="hud-slider w-20 sm:w-24">
-    <audio id="bgAudio" loop preload="auto">
-        <source src="https://files.cdn-files-a.com/uploads/12415260/normal_6aba83d3b1f36.mp3" type="audio/mpeg">
-    </audio>
-</div><!-- /twig-include:global/footer.html -->
-    <script src="https://cdn-cms-s-8-4.f-static.net/manager/ai_app_builder/v3/assets/js/app.js?t=1790613163&w=12415260&edit=1"></script>
-<script>var packageNUM=1;</script><script src="https://cdn-cms-s-8-4.f-static.net/versions/2/system_mini/js/minimize_appBuilder_scripts_v3.js?v=vc1790592900" crossorigin="anonymous"></script></body>
-</html>
-<!-- GÖKÇAKAR LOCAL DESTEK PROTOKOLÜ YAZILIMSAL YATAKLAMA -->
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const supportForm = document.getElementById("supportForm");
-    const supportFormStatus = document.getElementById("supportFormStatus");
-    const supportersList = document.getElementById("supportersList");
-    const supportCountSpan = document.getElementById("supportCount");
-    const alreadySupportedMsg = document.getElementById("alreadySupportedMsg");
-
-    // 1. Sayfa yüklenince tarayıcı hafızasındaki eski imzaları çek ve listeye ekle
-    let localSupporters = JSON.parse(localStorage.getItem("gokcakar_supporters")) || [];
-    
-    // Varsayılan sabit destekçiler (Kayıtlı İmzalar)
-    const defaultSupporters = ["Ahmet Torun", "Deniz Güzel", "Mehmet Efe Beyaz", "Mehmet Akten"];
-    
-    // Toplam sayıyı güncelle (Varsayılanlar + Yeni Eklenenler)
-    supportCountSpan.textContent = defaultSupporters.length + localSupporters.length;
-
-    // Hafızadaki yeni destekçileri listeye bas
-    localSupporters.forEach(name => {
-        const div = document.createElement("div");
-        div.innerHTML = `> ${name} - <span style="color: var(--primary-color);">ONAYLANDI (YEREL SÜRÜCÜ)</span>`;
-        supportersList.appendChild(div);
-    });
-
-    // Daha önce bu tarayıcıdan imza atılmış mı kontrol et
-    if (localStorage.getItem("gokcakar_has_signed") === "true") {
-        supportForm.style.display = "none";
-        alreadySupportedMsg.classList.remove("hidden");
-        alreadySupportedMsg.style.display = "block";
-    }
-
-    // 2. Form Gönderildiğinde Site123 Bağlantısını Devre Dışı Bırak ve Yerel Hafızaya Yaz
-    if (supportForm) {
-        supportForm.addEventListener("submit", function(e) {
-            e.preventDefault(); // Site123'ün hatalı sunucusuna gitmesini engeller.
-            
-            const nameInput = supportForm.querySelector('input[name="fullName"]');
-            const fullName = nameInput.value.trim();
-
             if (fullName === "") return;
 
-            // Listeye yeni ismi ekle
             const newDiv = document.createElement("div");
-            newDiv.innerHTML = `> ${fullName} - <span style="color: var(--primary-color);">ONAYLANDI (YENİ SİSTEM)</span>`;
-            supportersList.appendChild(newDiv);
+            newDiv.innerHTML = `> ${fullName} - <span style="color: #33ff33;">ONAYLANDI</span>`;
+            if(supportersList) supportersList.appendChild(newDiv);
 
-            // Hafızaya kaydet
             localSupporters.push(fullName);
             localStorage.setItem("gokcakar_supporters", JSON.stringify(localSupporters));
             localStorage.setItem("gokcakar_has_signed", "true");
 
-            // Sayaç güncelle
-            supportCountSpan.textContent = defaultSupporters.length + localSupporters.length;
-
-            // Formu gizle, teşekkür mesajını yak
-            supportForm.style.display = "none";
-            alreadySupportedMsg.classList.remove("hidden");
-            alreadySupportedMsg.style.display = "block";
+            if(supportCountSpan) supportCountSpan.textContent = defaultCount + localSupporters.length;
+            if(form) form.style.display = "none";
+            if(alreadySupportedMsg) alreadySupportedMsg.classList.remove("hidden");
         });
     }
 });
