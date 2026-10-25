@@ -94,9 +94,30 @@
 [DEVELOPER]: MEHMET EMRE AKTEN
 [MISSION_SECTOR]: BULANCAK SCIENCE HIGH SCHOOL R&D LAB
 -------------------------------------------------------------
-Sistem tamamen asenkron durum makinesi (State Machine) mimarisiyle, millis() saat döngüsü tabanlı çalışmaktadır.
+    </div>
 
-Sensor Fusion (Çift Kilit) Karar Mekanizması sayesinde, HC-SR04 ultrasonik mesafe verileri ile Analog LDR optik filtre verileri tek bir saniyede işlenerek hedefe kilitlenme (Target Tracking) ve önleme açısı (Lead Angle) hesaplanmaktadır. (Ayrıca site geliştirilmeye devam edildiği için sorunlar olabilir.)
+    <div class="mt-6 flex flex-col gap-6 text-left text-sm leading-relaxed" style="font-family:'Courier New', monospace;">
+        <div>
+            <h2 class="mb-2 font-bold uppercase tracking-[2px] text-[var(--primary-color)]">> Projenin Amacı ve Tanımı</h2>
+            <p>Bu proje; kritik tesislerin ve askeri unsurların alçak irtifa İHA/Dron tehditlerine karşı korunması amacıyla geliştirilmiş, 360 derece kesintisiz dönebilen otonom bir Yakın Savunma Silah Sistemi (CIWS) prototipidir. Sistem, tek bir sensörün hata payını sıfıra indirmek amacıyla Katmanlı Sensör Füzyonu (Sensor Fusion) mimarisiyle tasarlanmıştır. Projenin ana hedefi; yaklaşan tehditleri her türlü hava koşulunda uzak menzilden tespit etmek, milimetrik olarak izlemek ve otonom olarak etkisiz hale getirmektir.</p>
+        </div>
+        <div>
+            <h2 class="mb-2 font-bold uppercase tracking-[2px] text-[var(--primary-color)]">> Donanım ve Sensör Mimarisi (Katmanlı Sistem)</h2>
+            <ul class="flex list-none flex-col gap-3">
+                <li><span class="font-bold text-[var(--primary-color)]">[1. KATMAN // Uzak Menzil Tespit]</span> Sistem üzerinde yer alan mmWave (Milimetre Dalga) Radar, olumsuz hava koşullarından (sis, yağmur, toz) etkilenmeden 30+ metre menzildeki hedeflerin Doppler etkisiyle anlık hız ve yön verilerini toplar.</li>
+                <li><span class="font-bold text-[var(--primary-color)]">[2. KATMAN // Nesne Tanıma ve Doğrulama]</span> Radar verisiyle hedefe yönelen platform üzerindeki Kamera Sensörü, derin öğrenme ve görüntü işleme algoritmaları (ESP32-S3 vektör hızlandırıcıları kullanılarak) vasıtasıyla hedefin tipini (İHA/Dron) teşhis eder.</li>
+                <li><span class="font-bold text-[var(--primary-color)]">[3. KATMAN // Hassas Kilitlenme]</span> Tehdit 8 metre angajman sınırına girdiğinde, LiDAR ToF (Time-of-Flight) sensörü devreye girerek hedefin milimetrik X, Y, Z koordinatlarını çıkarır ve namluyu hedefe kilitler.</li>
+            </ul>
+        </div>
+        <div>
+            <h2 class="mb-2 font-bold uppercase tracking-[2px] text-[var(--primary-color)]">> İmha ve Atış Mekanizması</h2>
+            <p>Sürü İHA (Swarm) saldırılarına karşı koyabilmek ve hedef doğrultusunda ani bir "mermi duvarı" oluşturabilmek amacıyla atış mekanizmasında yüksek hızlı ve yüksek RPS (Rate of Fire) değerine sahip AEG Airsoft şanzıman (gearbox) sistemi entegre edilmiştir. Yüksek torklu motor ve LiPo batarya beslemesiyle saniyede 30+ atış kapasitesine ulaşan bu mekanizma, hedef önünde bir savunma bariyeri oluşturur. Güvenlik protokolleri gereği, test süreçlerinde ve jüri sunumunda biyobozunur plastik test mühimmatları ve kızılötesi/lazer simülasyon sistemleri kullanılacaktır.</p>
+        </div>
+        <div>
+            <h2 class="mb-2 font-bold uppercase tracking-[2px] text-[var(--primary-color)]">> Yazılım ve Kontrol</h2>
+            <p>Sistemin ana işlemcisi olarak yapay zeka ve vektör hesaplama yeteneklerine sahip ESP32-S3 kullanılmıştır. Sensörlerden gelen veriler Durum Makinesi (State Machine) algoritmasıyla işlenerek taretin otonom karar verme süreçlerini yönetmektedir. 360 derece kesintisiz dönüş esnasında veri ve güç iletimi parazitsiz bir Slip-Ring (Döner Konnektör) modülü ile sağlanmaktadır.</p>
+        </div>
+        <p class="text-xs text-[var(--text-muted)]">(Site geliştirilmeye devam edildiği için sorunlar olabilir.)</p>
     </div>
 
     <div class="mt-8 flex flex-col items-center gap-3">
@@ -152,7 +173,7 @@ Sensor Fusion (Çift Kilit) Karar Mekanizması sayesinde, HC-SR04 ultrasonik mes
     const gate = $('gate');
     if (gate) {
         const q = $('gateQ'), yes = $('gateYes'), no = $('gateNo'), btns = $('gateBtns'), log = $('gateLog'), bar = $('gateBar'), barBox = $('gateBarBox');
-        const BOOT = ['> ÇEKİRDEK YAZILIMI DOĞRULANIYOR... [OK]', '> HC-SR04 / LDR SENSÖR FÜZYONU... [OK]', '> DURUM MAKİNESİ (millis) BAŞLATILDI... [OK]', '> ŞİFRELİ BAĞLANTI KURULUYOR... [OK]', '> GÖKÇAKAR ÇEVRİMİÇİ. HOŞ GELDİNİZ.'];
+        const BOOT = ['> ÇEKİRDEK YAZILIMI DOĞRULANIYOR... [OK]', '> mmWave RADAR / KAMERA / LiDAR ToF KATMANLARI... [OK]', '> ESP32-S3 DURUM MAKİNESİ BAŞLATILDI... [OK]', '> ŞİFRELİ BAĞLANTI KURULUYOR... [OK]', '> GÖKÇAKAR ÇEVRİMİÇİ. HOŞ GELDİNİZ.'];
         let busy = false;
         const open = () => {
             ses.set('gokcakar_booted', '1');
